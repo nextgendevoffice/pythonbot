@@ -11,15 +11,17 @@ broadcast_groups = []
 broadcast_step = 0
 broadcast_message = ""
 
-def start_broadcast(update: Update, context: CallbackContext) -> None:
+def start_broadcast(update: Update, context: CallbackContext):
     global broadcast_step
+    print("start_broadcast called")
     if broadcast_step == 0:
         broadcast_step = 1
         update.message.reply_text('Please enter the group IDs that you want to broadcast (separated by commas).')
     else:
         update.message.reply_text('There is a task in progress. Please complete the current task before starting a new one.')
 
-def process_message(update: Update, context: CallbackContext) -> None:
+def process_message(update: Update, context: CallbackContext):
+    print("process_message called")
     global broadcast_step, broadcast_groups, broadcast_message
     text = update.message.text
 
@@ -50,5 +52,6 @@ def main() -> None:
     updater.start_polling()
     updater.idle()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
+
