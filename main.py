@@ -1,7 +1,6 @@
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
-from telegram.ext.filters import Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, Filters
 
 from config import TELEGRAM_BOT_TOKEN
 
@@ -42,17 +41,18 @@ def process_message(update: Update, context: CallbackContext):
         broadcast_groups = []
         broadcast_message = ""
 
-def main() -> None:
+def main():
+    # Initialize the Updater with your bot token
     updater = Updater(TELEGRAM_BOT_TOKEN)
 
+    # Add the command and message handlers to the dispatcher
     dispatcher = updater.dispatcher
-
     dispatcher.add_handler(CommandHandler("broadcast", start_broadcast))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, process_message))
+    dispatcher.add_handler(MessageHandler(Filters.text, process_message))
 
+    # Start the bot
     updater.start_polling()
     updater.idle()
 
 if __name__ == "__main__":
     main()
-
