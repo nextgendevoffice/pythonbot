@@ -1,6 +1,6 @@
 import logging
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
 
 from config import TELEGRAM_BOT_TOKEN
 
