@@ -31,9 +31,9 @@ def handle_text_message(event):
     else:
         reply_text = "ขออภัย ฉันไม่เข้าใจคำสั่ง ลองใช้คำสั่งเหล่านี้:\n"
         reply_text += "/ผลบอลสด\n"
-        reply_text += "/ผลบอล <ชื่อลีก> <วันที่>\n"
+        reply_text += "/ผลบอล <ชื่อย่อลีก> <วันที่>\n"
         reply_text += "/ลีค\n"
-        reply_text += "/ตารางคะแนน <ชื่อลีก>\n"
+        reply_text += "/ตารางคะแนน <ชื่อย่อลีก>\n"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
@@ -145,7 +145,7 @@ def create_scores_message(matches_data):
 
     message = ""
     for match in matches:
-        message += f"{match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']} ({match['status']})\n"
+        message += f"เจ้าบ้าน {match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']}ทีมเยือน\n"
 
     return message
 
