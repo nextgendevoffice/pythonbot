@@ -111,10 +111,11 @@ def handle_scores_command(user_id, text):
     if len(args) > 2:
         league_name = args[1]
         date_str = args[2]
-
+        print(f"Input date_str: {date_str}")
         try:
             date = datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
+            print(f"Failed to parse date: {date_str}")  # Add this line
             reply_text = "รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้รูปแบบ YYYY-MM-DD"
             line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
             return
@@ -132,7 +133,7 @@ def handle_scores_command(user_id, text):
         else:
             reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
     else:
-        reply_text = "กรุณาระบุชื่อลีกและวันที่ที่คุณต้องการตรวจสอบผลบอล (เช่น /ผลบอล EPL 2023-05-01)"
+        reply_text = "กรุณาระบุชื่อลีกและวันที่ที่คุณต้องการตรวจสอบผลบอล (เช่น /ผลบอล Premier League 2023-05-01)"
 
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
