@@ -20,6 +20,6 @@ def fetch_live_matches(competition_id=None):
 
 def fetch_standings(competition_id):
     headers = {"X-Auth-Token": API_KEY}
-    url = f"{BASE_URL}competitions/{competition_id}/standings"
+    url = f"{BASE_URL}competitions/{competition_id}/standings?=2022"
     response = requests.get(url, headers=headers)
     return response.json()
