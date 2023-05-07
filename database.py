@@ -13,3 +13,6 @@ def add_user(user_id):
         users.insert_one(user)
     else:
         users.update_one({"_id": user_id}, {"$set": {"registered": True}})
+        
+def get_user(user_id):
+    return users.find_one({"_id": user_id})

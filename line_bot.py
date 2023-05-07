@@ -3,8 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
-from database import users
-from database import add_user
+from database import users, add_user, get_user
 from football_api import fetch_competitions, fetch_live_matches, fetch_standings
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
@@ -27,7 +26,13 @@ def handle_text_message(event):
 
 def handle_live_scores_command(user_id, text):
     # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน
-    add_user(user_id)
+    user = get_user(user_id)
+    if not user:
+        add_user(user_id)
+        reply_text = "คุณได้เข้าร่วมแล้ว! ระบบกำลังประมวลผลผลบอลสด...\n\n"
+    else:
+        reply_text = ""
+
     args = text.split(' ')
     if len(args) > 1:
         league_name = args[1]
@@ -40,14 +45,15 @@ def handle_live_scores_command(user_id, text):
 
         if competition_id:
             live_matches = fetch_live_matches(competition_id)
-            reply_text = create_live_scores_message(live_matches)
+            reply_text += create_live_scores_message(live_matches)
         else:
-            reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
+            reply_text += "ขออภัย ไม่พบลีกที่คุณต้องการ"
     else:
         live_matches = fetch_live_matches()
-        reply_text = create_live_scores_message(live_matches)
+        reply_text += create_live_scores_message(live_matches)
 
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+
 
 def create_live_scores_message(live_matches):
     message = "ผลบอลสด:\n"
