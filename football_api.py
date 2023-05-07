@@ -2,7 +2,7 @@
 import requests
 from config import API_KEY
 
-BASE_URL = "https://api.football-data.org/v2/"
+BASE_URL = "https://api.football-data.org/v4/"
 
 def fetch_competitions():
     headers = {"X-Auth-Token": API_KEY}
