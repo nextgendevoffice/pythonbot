@@ -4,7 +4,8 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
 from database import users, add_user, get_user
-from football_api import fetch_competitions, fetch_live_matches, fetch_standings
+from football_api import fetch_competitions, fetch_live_matches, fetch_standings, fetch_matches_by_date
+from datetime import datetime
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -107,8 +108,17 @@ def create_standings_message(standings):
 
 def handle_scores_command(user_id, text):
     args = text.split(' ')
-    if len(args) > 1:
+    if len(args) > 2:
         league_name = args[1]
+        date_str = args[2]
+
+        try:
+            date = datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            reply_text = "รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้รูปแบบ YYYY-MM-DD"
+            line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+            return
+
         competitions = fetch_competitions()
         competition_id = None
         for comp in competitions['competitions']:
@@ -117,21 +127,22 @@ def handle_scores_command(user_id, text):
                 break
 
         if competition_id:
-            date_input = input("กรุณาใส่วันที่ (ตัวอย่าง: 2023-05-07): ")
-            scores = fetch_scores(competition_id, date_input)
-            reply_text = create_scores_message(scores)
+            matches = fetch_matches_by_date(competition_id, date)
+            reply_text = create_scores_message(matches)
         else:
             reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
     else:
-        reply_text = "กรุณาระบุชื่อลีกที่คุณต้องการตรวจสอบผลบอล"
+        reply_text = "กรุณาระบุชื่อลีกและวันที่ที่คุณต้องการตรวจสอบผลบอล (เช่น /ผลบอล EPL 2023-05-01)"
 
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
-def create_scores_message(scores):
-    message = f"ผลบอลสำหรับวันที่ {scores['filters']['dateFrom']}:\n"
-    for match in scores['matches']:
-        message += f"{match['homeTeam']['name']} {match['score']['fullTime']['homeTeam']} - {match['score']['fullTime']['awayTeam']} {match['awayTeam']['name']}\n"
+
+def create_scores_message(matches):
+    message = "ผลบอล:\n"
+    for match in matches['matches']:
+        message += f"{match['homeTeam']['name']} {match['score']['fullTime']['homeTeam']} - {match['score']['fullTime']['awayTeam']} {match['awayTeam']['name']} ({match['status']})\n"
     return message
+
 
 
 @handler.add(MessageEvent, message=TextMessage)
