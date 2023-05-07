@@ -75,18 +75,17 @@ def handle_competitions_command(user_id):
     competitions = fetch_competitions()
     reply_text = "ลีกทั้งหมด:\n"
     for comp in competitions['competitions']:
-        reply_text += f"{comp['name']}\n"
-
+        reply_text += f"{comp['name']} | {comp['code']}\n"
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 def handle_standings_command(user_id, text):
     args = text.split(' ')
     if len(args) > 1:
-        league_name = args[1]
+        league_code = args[1]
         competitions = fetch_competitions()
         competition_id = None
         for comp in competitions['competitions']:
-            if comp['name'] == league_name:
+            if comp['code'] == league_code:
                 competition_id = comp['id']
                 break
 
@@ -109,7 +108,8 @@ def create_standings_message(standings):
 def handle_scores_command(user_id, text):
     args = text.split(' ')
     if len(args) > 2:
-        league_name = args[1]
+        league_code = args[1]  # แก้ไขตรงนี้
+        ...
         date_str = args[2]
         print(f"Input date_str: {date_str}")
         try:
@@ -123,7 +123,7 @@ def handle_scores_command(user_id, text):
         competitions = fetch_competitions()
         competition_id = None
         for comp in competitions['competitions']:
-            if comp['name'] == league_name:
+            if comp['code'] == league_code:
                 competition_id = comp['id']
                 break
 
