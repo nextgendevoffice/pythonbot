@@ -145,7 +145,7 @@ def create_scores_message(matches_data):
 
     message = ""
     for match in matches:
-        message += f"เจ้าบ้าน {match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']}ทีมเยือน\n"
+        message += f"เจ้าบ้าน {match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']} ทีมเยือน\n"
 
     return message
 
