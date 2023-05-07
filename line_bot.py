@@ -4,6 +4,7 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
 from database import users
+from database import add_user
 from football_api import fetch_competitions, fetch_live_matches, fetch_standings
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
@@ -25,6 +26,8 @@ def handle_text_message(event):
 
 
 def handle_live_scores_command(user_id, text):
+    # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน
+    add_user(user_id)
     args = text.split(' ')
     if len(args) > 1:
         league_name = args[1]
