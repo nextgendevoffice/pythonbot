@@ -24,8 +24,15 @@ def handle_text_message(event):
     elif text.startswith('/ตารางคะแนน'):
         print("Handling standings command")
         handle_standings_command(user_id, text)
+    elif text.startswith('/ผลบอล'):
+        print("Handling scores command")
+        handle_scores_command(user_id, text)
     else:
-        reply_text = "ขออภัย ฉันไม่เข้าใจคำสั่ง"
+        reply_text = "ขออภัย ฉันไม่เข้าใจคำสั่ง ลองใช้คำสั่งเหล่านี้:\n"
+        reply_text += "/ผลบอลสด\n"
+        reply_text += "/ผลบอล <ชื่อลีก> <วันที่>\n"
+        reply_text += "/ลีค\n"
+        reply_text += "/ตารางคะแนน <ชื่อลีก>\n"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
@@ -97,6 +104,35 @@ def create_standings_message(standings):
     for team in standings['standings'][0]['table']:
         message += f"{team['position']}. {team['team']['name']} ({team['points']} คะแนน)\n"
     return message
+
+def handle_scores_command(user_id, text):
+    args = text.split(' ')
+    if len(args) > 1:
+        league_name = args[1]
+        competitions = fetch_competitions()
+        competition_id = None
+        for comp in competitions['competitions']:
+            if comp['name'] == league_name:
+                competition_id = comp['id']
+                break
+
+        if competition_id:
+            date_input = input("กรุณาใส่วันที่ (ตัวอย่าง: 2023-05-07): ")
+            scores = fetch_scores(competition_id, date_input)
+            reply_text = create_scores_message(scores)
+        else:
+            reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
+    else:
+        reply_text = "กรุณาระบุชื่อลีกที่คุณต้องการตรวจสอบผลบอล"
+
+    line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+
+def create_scores_message(scores):
+    message = f"ผลบอลสำหรับวันที่ {scores['filters']['dateFrom']}:\n"
+    for match in scores['matches']:
+        message += f"{match['homeTeam']['name']} {match['score']['fullTime']['homeTeam']} - {match['score']['fullTime']['awayTeam']} {match['awayTeam']['name']}\n"
+    return message
+
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):

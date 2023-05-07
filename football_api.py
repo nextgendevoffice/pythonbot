@@ -23,3 +23,9 @@ def fetch_standings(competition_id):
     url = f"{BASE_URL}competitions/{competition_id}/standings?=2022"
     response = requests.get(url, headers=headers)
     return response.json()
+
+def fetch_scores(competition_id, date):
+    headers = {"X-Auth-Token": API_KEY}
+    url = f"{BASE_URL}competitions/{competition_id}/matches?status=FINISHED&dateFrom={date}&dateTo={date}"
+    response = requests.get(url, headers=headers)
+    return response.json()
