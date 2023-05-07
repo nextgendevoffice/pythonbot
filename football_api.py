@@ -1,6 +1,7 @@
 # football_api.py
 import requests
 from config import API_KEY
+from datetime import datetime
 
 BASE_URL = "https://api.football-data.org/v4/"
 
