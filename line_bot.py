@@ -138,11 +138,17 @@ def handle_scores_command(user_id, text):
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 
-def create_scores_message(matches):
-    message = "ผลบอล:\n"
-    for match in matches['matches']:
-        message += f"{match['homeTeam']['name']} {match['score']['fullTime']['homeTeam']} - {match['score']['fullTime']['awayTeam']} {match['awayTeam']['name']} ({match['status']})\n"
+def create_scores_message(matches_data):
+    matches = matches_data["matches"]
+    if len(matches) == 0:
+        return "ไม่มีการแข่งขันในวันนี้"
+
+    message = ""
+    for match in matches:
+        message += f"{match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']} ({match['status']})\n"
+
     return message
+
 
 
 
