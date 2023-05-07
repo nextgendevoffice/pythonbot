@@ -19,13 +19,13 @@ def handle_text_message(event):
     if text.startswith('/ผลบอลสด'):
         print("Handling live scores command")
         handle_live_scores_command(user_id, text)
-    elif text.startswith('/ลีค'):
+    elif text.startswith('/ลีค'): #Success
         print("Handling competitions command")
         handle_competitions_command(user_id)
-    elif text.startswith('/ตารางคะแนน'):
+    elif text.startswith('/ตารางคะแนน'): #Success
         print("Handling standings command")
         handle_standings_command(user_id, text)
-    elif text.startswith('/ผลบอล'):
+    elif text.startswith('/ผลบอล'): #Success
         print("Handling scores command")
         handle_scores_command(user_id, text)
     else:
@@ -145,7 +145,7 @@ def create_scores_message(matches_data):
 
     message = ""
     for match in matches:
-        message += f"ผลการแข่งขัน: {match['competition']['name']}\n เจ้าบ้าน {match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']}ทีมเยือน\n"
+        message += f"เจ้าบ้าน {match['homeTeam']['name']} {match['score']['fullTime']['home']} - {match['score']['fullTime']['away']} {match['awayTeam']['name']}ทีมเยือน\n"
 
     return message
 
