@@ -58,3 +58,9 @@ def find_league_id(code_or_id):
         if comp['code'] == code_or_id or comp['id'] == code_or_id:
             return comp['id']
     return None
+
+def fetch_all_matches():
+    headers = {"X-Auth-Token": API_KEY}
+    url = f"{BASE_URL}matches"
+    response = requests.get(url, headers=headers)
+    return response.json()
