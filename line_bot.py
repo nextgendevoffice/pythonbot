@@ -159,6 +159,66 @@ def create_scores_message(matches_data):
 
     return message
 
+def handle_schedule_command(user_id, text):
+    args = text.split(' ')
+    if len(args) > 2:
+        league_code = args[1]
+        date_str = args[2]
+        try:
+            date = datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            print(f"Failed to parse date: {date_str}")
+            reply_text = "รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้รูปแบบ YYYY-MM-DD"
+            line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+            return
+
+        competitions = fetch_competitions()
+        competition_id = None
+        for comp in competitions['competitions']:
+            if comp['code'] == league_code:
+                competition_id = comp['id']
+                break
+
+        if competition_id:
+            schedule = fetch_schedule(competition_id, date)
+            reply_text = create_schedule_message(schedule)
+        else:
+            reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
+    elif len(args) == 2:
+        league_code = args[1]
+        date = datetime.now()
+        competitions = fetch_competitions()
+        competition_id = None
+        for comp in competitions['competitions']:
+            if comp['code'] == league_code:
+                competition_id = comp['id']
+                break
+
+        if competition_id:
+            schedule = fetch_schedule(competition_id, date)
+            reply_text = create_schedule_message(schedule)
+        else:
+            reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
+    else:
+        date = datetime.now()
+        schedule = fetch_schedule_all_leagues(date)
+        reply_text = create_schedule_message(schedule)
+
+    line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+
+def fetch_schedule(competition_id, date):
+    # แทนที่ด้วยการเรียกใช้ API ที่เหมาะสม
+    pass
+
+def fetch_schedule_all_leagues(date):
+    # แทนที่ด้วยการเรียกใช้ API ที่เหมาะสม
+    pass
+
+def create_schedule_message(schedule):
+    message = "ตารางการแข่งขัน:\n"
+    for match in schedule['matches']:
+        message += f"เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']} at {match['utcDate']}\n"
+    return message
 
 
 
