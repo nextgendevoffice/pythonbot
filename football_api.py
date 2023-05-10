@@ -31,3 +31,30 @@ def fetch_matches_by_date(competition_id, date):
     response = requests.get(url, headers=headers)
     return response.json()
 
+def fetch_matches_by_code_or_id(code_or_id, status="FINISHED", dateFrom=None, dateTo=None):
+    league_id = find_league_id(code_or_id)
+    if not league_id:
+        return None
+
+    headers = {"X-Auth-Token": API_KEY}
+    url = f"{BASE_URL}competitions/{league_id}/matches"
+    params = {"status": status}
+
+    if dateFrom:
+        params["dateFrom"] = dateFrom
+    if dateTo:
+        params["dateTo"] = dateTo
+
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        return None
+
+    return response.json()
+
+def find_league_id(code_or_id):
+    competitions = fetch_competitions()
+    for comp in competitions['competitions']:
+        if comp['code'] == code_or_id or comp['id'] == code_or_id:
+            return comp['id']
+    return None
