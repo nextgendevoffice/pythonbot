@@ -189,7 +189,7 @@ def create_schedule_message(schedule):
         utc_date = datetime.strptime(match['utcDate'], "%Y-%m-%dT%H:%M:%SZ")
         thai_date = utc_date.astimezone(pytz.timezone('Asia/Bangkok')).strftime("%Y-%m-%d %H:%M")
         
-        message += f"เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']} at {thai_date}\n"
+        message += f"📣เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']}\n🏟 กำหนดการ {thai_date}\n"
     return message
 
 
