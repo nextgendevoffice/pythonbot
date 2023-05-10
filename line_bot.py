@@ -30,7 +30,7 @@ def handle_text_message(event):
     elif text.startswith('/ผลบอล'): #Success
         print("Handling scores command")
         handle_scores_command(user_id, text)
-    elif text.startswith('/ตารางแข่งขัน'):
+    elif text.startswith('/ตารางแข่งขัน'): #Success
         print("Handling schedule command")
         handle_schedule_command(user_id, text)
     else:
