@@ -5,7 +5,8 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
 from database import users, add_user, get_user
 from football_api import fetch_competitions, fetch_live_matches, fetch_standings, fetch_matches_by_date
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -107,11 +108,10 @@ def create_standings_message(standings):
 
 def handle_scores_command(user_id, text):
     args = text.split(' ')
-    if len(args) > 2:
-        league_code = args[1]  # แก้ไขตรงนี้
-        ...
-        date_str = args[2]
-        print(f"Input date_str: {date_str}")
+    league_code = args[1] if len(args) > 1 else None
+    date_str = args[2] if len(args) > 2 else None
+
+    if date_str:
         try:
             date = datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
@@ -119,7 +119,10 @@ def handle_scores_command(user_id, text):
             reply_text = "รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้รูปแบบ YYYY-MM-DD"
             line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
             return
+    else:
+        date = datetime.now() - timedelta(days=1)  # Use yesterday's date if none provided
 
+    if league_code:
         competitions = fetch_competitions()
         competition_id = None
         for comp in competitions['competitions']:
@@ -133,10 +136,17 @@ def handle_scores_command(user_id, text):
         else:
             reply_text = "ขออภัย ไม่พบลีกที่คุณต้องการ"
     else:
-        reply_text = "กรุณาระบุชื่อลีกและวันที่ที่คุณต้องการตรวจสอบผลบอล (เช่น /ผลบอล Premier League 2023-05-01)"
+        reply_text = handle_all_leagues_scores(date)
 
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
+def handle_all_leagues_scores(date):
+    competitions = fetch_competitions()
+    all_matches = []
+    for comp in competitions['competitions']:
+        matches = fetch_matches_by_date(comp['id'], date)
+        all_matches.extend(matches['matches'])
+    return create_scores_message({'matches': all_matches})
 
 def create_scores_message(matches_data):
     matches = matches_data["matches"]
