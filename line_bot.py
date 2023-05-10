@@ -6,6 +6,7 @@ from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
 from database import users, add_user, get_user
 from football_api import fetch_competitions, fetch_live_matches, fetch_standings, fetch_matches_by_date, fetch_all_matches
 from datetime import datetime, timedelta
+import pytz
 
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
@@ -178,8 +179,17 @@ def fetch_schedule_all_leagues():
 
 def create_schedule_message(schedule):
     message = "ตารางการแข่งขัน:\n"
+    prev_league_name = None
     for match in schedule['matches']:
-        message += f"เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']} at {match['utcDate']}\n"
+        league_name = match['competition']['name']
+        if league_name != prev_league_name:
+            message += f"\n{league_name}\n"
+            prev_league_name = league_name
+
+        utc_date = datetime.strptime(match['utcDate'], "%Y-%m-%dT%H:%M:%SZ")
+        thai_date = utc_date.astimezone(pytz.timezone('Asia/Bangkok')).strftime("%Y-%m-%d %H:%M")
+        
+        message += f"เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']} at {thai_date}\n"
     return message
 
 

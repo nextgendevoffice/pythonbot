@@ -3,3 +3,4 @@ requests
 line-bot-sdk
 Flask
 gunicorn
+pytz
