@@ -29,6 +29,9 @@ def handle_text_message(event):
     elif text.startswith('/ผลบอล'): #Success
         print("Handling scores command")
         handle_scores_command(user_id, text)
+    elif text.startswith('/ตารางแข่งขัน'):
+        print("Handling schedule command")
+        handle_schedule_command(user_id, text)
     else:
         reply_text = "ขออภัย ฉันไม่เข้าใจคำสั่ง ลองใช้คำสั่งเหล่านี้:\n"
         reply_text += "/ผลบอลสด\n"
