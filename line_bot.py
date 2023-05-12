@@ -18,30 +18,31 @@ def handle_text_message(event):
 
     print(f"Handling text message: {text}")
 
-    if text.startswith('/ผลบอลสด'):
-        print("Handling live scores command")
-        handle_live_scores_command(user_id, text)
-    elif text.startswith('/ลีค'): #Success
-        print("Handling competitions command")
-        handle_competitions_command(user_id)
-    elif text.startswith('/ตารางคะแนน'): #Success
-        print("Handling standings command")
-        handle_standings_command(user_id, text)
-    elif text.startswith('/ผลบอล'): #Success
-        print("Handling scores command")
-        handle_scores_command(user_id, text)
-    elif text.startswith('/ตารางแข่งขัน'): #Success
-        print("Handling schedule command")
-        handle_schedule_command(user_id, text)
-    elif text.startswith('/ลงทะเบียน'):
+    if text.startswith('/ลงทะเบียน'):
         print("Handling registration command")
         handle_registration_command(user_id)
     elif text.startswith('/ลีคติดตาม'):
-        print("Handling followed leagues command")
-        handle_followed_leagues_command(user_id)
+        print("Handling league following command")
+        handle_followed_leagues_command(user_id, text)
+    elif text.startswith('/ผลบอลสด'):
+        print("Handling live scores command")
+        handle_live_scores_command(user_id, text)
+    elif text.startswith('/ลีค'): 
+        print("Handling competitions command")
+        handle_competitions_command(user_id)
+    elif text.startswith('/ตารางคะแนน'): 
+        print("Handling standings command")
+        handle_standings_command(user_id, text)
+    elif text.startswith('/ผลบอล'): 
+        print("Handling scores command")
+        handle_scores_command(user_id, text)
+    elif text.startswith('/ตารางแข่งขัน'): 
+        print("Handling schedule command")
+        handle_schedule_command(user_id, text)
     else:
         print("Handling league selection")
         handle_league_selection(user_id, text)
+
 
 
 def handle_registration_command(user_id):
