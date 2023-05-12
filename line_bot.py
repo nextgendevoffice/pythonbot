@@ -50,10 +50,11 @@ def handle_registration_command(user_id):
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 def handle_league_selection(user_id, text):
-    leagues = text.split()
+    leagues = text.replace('/ลงทะเบียน ', '').split(',')
     add_leagues_to_user(user_id, leagues)
     reply_text = "ลีกที่คุณเลือกได้รับการแจ้งเตือนแล้ว: " + ", ".join(leagues)
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+
     
 def handle_live_scores_command(user_id, text):
     # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน

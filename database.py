@@ -18,4 +18,4 @@ def get_user(user_id):
     return users.find_one({"_id": user_id})
 
 def add_leagues_to_user(user_id, leagues):
-    users.update_one({"_id": user_id}, {"$set": {"leagues": leagues}})
+    users.update_one({"_id": user_id}, {"$addToSet": {"leagues": {"$each": leagues}}})
