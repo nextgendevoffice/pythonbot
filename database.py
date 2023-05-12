@@ -21,3 +21,6 @@ def update_user_leagues(user_id, leagues):
     user = get_user(user_id)
     if user:
         users.update_one({"_id": user_id}, {"$set": {"leagues": leagues}})
+
+def get_all_users():
+    return list(users.find())
