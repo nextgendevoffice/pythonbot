@@ -16,11 +16,3 @@ def add_user(user_id):
         
 def get_user(user_id):
     return users.find_one({"_id": user_id})
-
-def update_user_leagues(user_id, leagues):
-    user = get_user(user_id)
-    if user:
-        users.update_one({"_id": user_id}, {"$set": {"leagues": leagues}})
-
-def get_all_users():
-    return list(users.find())

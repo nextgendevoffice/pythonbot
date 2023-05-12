@@ -18,16 +18,6 @@ def handle_text_message(event):
 
     print(f"Handling text message: {text}")
 
-    user = get_user(user_id)
-
-    # ตรวจสอบว่าผู้ใช้มีสถานะลงทะเบียนหรือไม่
-    if user and user.get('registered'):
-        # ถ้าข้อความไม่ได้เริ่มต้นด้วย "/" แสดงว่ามันเป็นการเลือกลีก
-        if not text.startswith('/'):
-            print("Handling league selection")
-            handle_league_selection(user_id, text)
-            return
-
     if text.startswith('/ผลบอลสด'):
         print("Handling live scores command")
         handle_live_scores_command(user_id, text)
@@ -43,9 +33,6 @@ def handle_text_message(event):
     elif text.startswith('/ตารางแข่งขัน'): #Success
         print("Handling schedule command")
         handle_schedule_command(user_id, text)
-    elif text.startswith('/ลงทะเบียน'):
-        print("Handling register command")
-        handle_register_command(user_id)
     else:
         reply_text = "ขออภัย ฉันไม่เข้าใจคำสั่ง ลองใช้คำสั่งเหล่านี้:\n"
         reply_text += "/ผลบอลสด\n"
@@ -54,19 +41,6 @@ def handle_text_message(event):
         reply_text += "/ตารางคะแนน <ชื่อย่อลีก>\n"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
-def handle_register_command(user_id):
-    add_user(user_id)
-    competitions = fetch_competitions()
-    reply_text = "กรุณาเลือกลีคในการรับการแจ้งเตือน:\n"
-    for comp in competitions['competitions']:
-        reply_text += f"{comp['name']} | {comp['code']}\n"
-    line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
-
-def handle_league_selection(user_id, text):
-    leagues = text.split(',')
-    update_user_leagues(user_id, leagues)
-    reply_text = "การลงทะเบียนเสร็จสิ้น คุณจะได้รับการแจ้งเตือนจากลีคที่คุณเลือกทุกวัน เวลา 13:00 น."
-    line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 def handle_live_scores_command(user_id, text):
     # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน
