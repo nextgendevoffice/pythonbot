@@ -18,6 +18,16 @@ def handle_text_message(event):
 
     print(f"Handling text message: {text}")
 
+    user = get_user(user_id)
+
+    # ตรวจสอบว่าผู้ใช้มีสถานะลงทะเบียนหรือไม่
+    if user and user.get('registered'):
+        # ถ้าข้อความไม่ได้เริ่มต้นด้วย "/" แสดงว่ามันเป็นการเลือกลีก
+        if not text.startswith('/'):
+            print("Handling league selection")
+            handle_league_selection(user_id, text)
+            return
+
     if text.startswith('/ผลบอลสด'):
         print("Handling live scores command")
         handle_live_scores_command(user_id, text)
