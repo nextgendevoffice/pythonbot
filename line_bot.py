@@ -23,7 +23,7 @@ def handle_text_message(event):
         handle_registration_command(user_id)
     elif text.startswith('/ลีคติดตาม'):
         print("Handling league following command")
-        handle_followed_leagues_command(user_id, text)
+        handle_followed_leagues_command(user_id)
     elif text.startswith('/ผลบอลสด'):
         print("Handling live scores command")
         handle_live_scores_command(user_id, text)
