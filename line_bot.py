@@ -3,7 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
-from database import users, add_user, get_user
+from database import users, add_user, get_user, add_leagues_to_user
 from football_api import fetch_competitions, fetch_live_matches, fetch_standings, fetch_matches_by_date, fetch_all_matches
 from datetime import datetime, timedelta
 import pytz
@@ -33,15 +33,28 @@ def handle_text_message(event):
     elif text.startswith('/ตารางแข่งขัน'): #Success
         print("Handling schedule command")
         handle_schedule_command(user_id, text)
+    elif text.startswith('/ลงทะเบียน'):
+        print("Handling registration command")
+        handle_registration_command(user_id)
     else:
-        reply_text = "ขออภัย ฉันไม่เข้าใจคำสั่ง ลองใช้คำสั่งเหล่านี้:\n"
-        reply_text += "/ผลบอลสด\n"
-        reply_text += "/ผลบอล <ชื่อย่อลีก> <วันที่>\n"
-        reply_text += "/ลีค\n"
-        reply_text += "/ตารางคะแนน <ชื่อย่อลีก>\n"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        print("Handling league selection")
+        handle_league_selection(user_id, text)
 
 
+def handle_registration_command(user_id):
+    competitions = fetch_competitions()
+    reply_text = "ลีกที่สามารถใช้งานได้:\n"
+    for comp in competitions['competitions']:
+        reply_text += f"{comp['name']} | {comp['code']}\n"
+    reply_text += "กรุณาเลือกลีกในการรับการแจ้งเตือนโดยพิมพ์ '/ลงทะเบียน <ชื่อย่อลีก>'"
+    line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+
+def handle_league_selection(user_id, text):
+    leagues = text.split()
+    add_leagues_to_user(user_id, leagues)
+    reply_text = "ลีกที่คุณเลือกได้รับการแจ้งเตือนแล้ว: " + ", ".join(leagues)
+    line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+    
 def handle_live_scores_command(user_id, text):
     # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน
     add_user(user_id)
@@ -70,6 +83,9 @@ def handle_live_scores_command(user_id, text):
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 def create_live_scores_message(live_matches):
+    if len(live_matches['matches']) == 0:
+        return "ไม่มีการแข่งขันอยู่ในขณะนี้"
+
     message = "ผลบอลสด:\n"
     for match in live_matches['matches']:
         message += f"{match['homeTeam']['name']} {match['score']['fullTime']['homeTeam']} - {match['score']['fullTime']['awayTeam']} {match['awayTeam']['name']}\n"
@@ -105,6 +121,9 @@ def handle_standings_command(user_id, text):
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 def create_standings_message(standings):
+    if len(standings['standings']) == 0:
+        return "ไม่มีข้อมูลตารางคะแนนสำหรับลีกนี้"
+
     message = f"ตารางคะแนน {standings['competition']['name']}:\n"
     for team in standings['standings'][0]['table']:
         message += f"{team['position']}. {team['team']['name']} ({team['points']} คะแนน)\n"
@@ -178,18 +197,22 @@ def fetch_schedule_all_leagues():
     return fetch_all_matches()
 
 def create_schedule_message(schedule):
+    if len(schedule['matches']) == 0:
+        return "ไม่มีข้อมูลตารางการแข่งขันสำหรับลีกนี้"
+
     message = "ตารางการแข่งขัน:\n"
     prev_league_name = None
     for match in schedule['matches']:
         league_name = match['competition']['name']
         if league_name != prev_league_name:
             message += f"\n{league_name}\n"
-            prev_league_name = league_name
 
-        utc_date = datetime.strptime(match['utcDate'], "%Y-%m-%dT%H:%M:%SZ")
-        thai_date = utc_date.astimezone(pytz.timezone('Asia/Bangkok')).strftime("%Y-%m-%d %H:%M")
-        
-        message += f"📣เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']}\n🏟 กำหนดการ {thai_date}\n"
+        match_date = datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')  # Convert from UTC to local time
+        match_date = match_date.strftime('%d/%m/%Y %H:%M')  # Format the date and time
+
+        message += f"{match['homeTeam']['name']} vs {match['awayTeam']['name']} วันที่ {match_date}\n"
+        prev_league_name = league_name
+
     return message
 
 
