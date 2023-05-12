@@ -61,13 +61,21 @@ def handle_league_selection(user_id, text):
 
 def handle_followed_leagues_command(user_id):
     followed_leagues = get_followed_leagues(user_id)
-    
+    competitions = handle_competitions_command()  # This should return a list of dictionaries with league details
+
+    # Create a dictionary for easy lookup of league names
+    league_names = {comp['code']: comp['name'] for comp in competitions}
+
     if not followed_leagues:
         message = "คุณยังไม่ได้ติดตามลีกใดๆ"
     else:
-        message = "คุณกำลังติดตามลีกดังนี้:\n" + "\n".join(followed_leagues)
+        # Map the followed league codes to their full names
+        followed_league_names = [league_names[code] for code in followed_leagues]
+        
+        message = "คุณกำลังติดตามลีกดังนี้:\n" + "\n".join(followed_league_names)
     
     line_bot_api.push_message(user_id, TextSendMessage(text=message))
+
     
 def handle_live_scores_command(user_id, text):
     # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน
