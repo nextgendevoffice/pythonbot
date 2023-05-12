@@ -3,7 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
-from database import users, add_user, get_user, add_leagues_to_user
+from database import users, add_user, get_user, add_leagues_to_user, get_followed_leagues
 from football_api import fetch_competitions, fetch_live_matches, fetch_standings, fetch_matches_by_date, fetch_all_matches
 from datetime import datetime, timedelta
 import pytz
@@ -36,6 +36,9 @@ def handle_text_message(event):
     elif text.startswith('/ลงทะเบียน'):
         print("Handling registration command")
         handle_registration_command(user_id)
+    elif text.startswith('/ลีคติดตาม'):
+        print("Handling followed leagues command")
+        handle_followed_leagues_command(user_id)
     else:
         print("Handling league selection")
         handle_league_selection(user_id, text)
@@ -46,7 +49,7 @@ def handle_registration_command(user_id):
     reply_text = "ลีกที่สามารถใช้งานได้:\n"
     for comp in competitions['competitions']:
         reply_text += f"{comp['name']} | {comp['code']}\n"
-    reply_text += "กรุณาเลือกลีกในการรับการแจ้งเตือนโดยพิมพ์ '/ลงทะเบียน <ชื่อย่อลีก>'"
+    reply_text += "กรุณาเลือกลีกในการรับการแจ้งเตือนโดยพิมพ์ '<ชื่อย่อลีก1,ชื่อย่อลีก2> ตัวอย่าง PL,CL'"
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
 def handle_league_selection(user_id, text):
@@ -55,6 +58,15 @@ def handle_league_selection(user_id, text):
     reply_text = "ลีกที่คุณเลือกได้รับการแจ้งเตือนแล้ว: " + ", ".join(leagues)
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
 
+def handle_followed_leagues_command(user_id):
+    followed_leagues = get_followed_leagues(user_id)
+    
+    if not followed_leagues:
+        message = "คุณยังไม่ได้ติดตามลีกใดๆ"
+    else:
+        message = "คุณกำลังติดตามลีกดังนี้:\n" + "\n".join(followed_leagues)
+    
+    line_bot_api.push_message(user_id, TextSendMessage(text=message))
     
 def handle_live_scores_command(user_id, text):
     # บันทึกข้อมูลผู้ใช้ที่ลงทะเบียน

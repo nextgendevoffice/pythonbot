@@ -19,3 +19,7 @@ def get_user(user_id):
 
 def add_leagues_to_user(user_id, leagues):
     users.update_one({"_id": user_id}, {"$addToSet": {"leagues": {"$each": leagues}}})
+
+def get_followed_leagues(user_id):
+    user = users.find_one({"_id": user_id})
+    return user.get("leagues", [])
