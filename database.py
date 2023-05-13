@@ -23,3 +23,6 @@ def add_leagues_to_user(user_id, leagues):
 def get_followed_leagues(user_id):
     user = users.find_one({"_id": user_id})
     return user.get("leagues", [])
+
+def get_all_users():
+    return [user["_id"] for user in users.find({"registered": True})]
