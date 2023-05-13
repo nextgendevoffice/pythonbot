@@ -197,10 +197,19 @@ def create_scores_message(matches_data):
     return message
 
 def handle_schedule_command(user_id, text):
-    args = text.split(' ')
-    schedule = fetch_all_matches()
-    reply_text = create_schedule_message(schedule)
+    followed_leagues = get_followed_leagues(user_id)
+    schedule = fetch_schedule_all_leagues()
+    relevant_matches = filter_schedule_by_followed_leagues(schedule, followed_leagues)
+    reply_text = create_schedule_message(relevant_matches)
     line_bot_api.push_message(user_id, TextSendMessage(text=reply_text))
+
+def filter_schedule_by_followed_leagues(schedule, followed_leagues):
+    relevant_matches = {'matches': []}
+    for match in schedule['matches']:
+        if match['competition']['code'] in followed_leagues:
+            relevant_matches['matches'].append(match)
+    return relevant_matches
+
 
 def fetch_schedule():
     # แทนที่ด้วยการเรียกใช้ API ที่เหมาะสม
@@ -224,7 +233,7 @@ def create_schedule_message(schedule):
         match_date = datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')  # Convert from UTC to local time
         match_date = match_date.strftime('%d/%m/%Y %H:%M')  # Format the date and time
 
-        message += f"{match['homeTeam']['name']} vs {match['awayTeam']['name']} วันที่ {match_date}\n"
+        message += f"📣เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']} \n🏟กำหนดการ: วันที่ {match_date}\n"
         prev_league_name = league_name
 
     return message
