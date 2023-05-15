@@ -231,7 +231,10 @@ def create_schedule_message(schedule):
             message += f"\n{league_name}\n"
 
         match_date = datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')  # Convert from UTC to local time
+        match_date = match_date.replace(tzinfo=pytz.utc)  # Set timezone to UTC
+        match_date = match_date.astimezone(pytz.timezone('Asia/Bangkok'))  # Convert to Bangkok time
         match_date = match_date.strftime('%d/%m/%Y %H:%M')  # Format the date and time
+
 
         message += f"📣เจ้าบ้าน : {match['homeTeam']['name']} vs เยือน : {match['awayTeam']['name']} \n🏟กำหนดการ: วันที่ {match_date}\n"
         prev_league_name = league_name
