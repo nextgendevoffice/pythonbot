@@ -242,8 +242,6 @@ def create_schedule_message(schedule):
     return message
 
 
-
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     handle_text_message(event)
